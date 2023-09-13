@@ -1,0 +1,87 @@
+{% extends 'base.html' %}
+{% load static %}
+{% block content %}
+
+{% if errors %}
+<ul id="errors" class="alert alert-danger list-unstyled">
+    
+    <li>{{ errors }}</li>
+
+</ul>
+{% endif %}
+
+<div class="card mb-3">
+    <div class="row g-0">
+        <div class="col-md-4">
+            {%if product.image%}
+            <img src="{{product.image}}" class="card-img-top img-card">
+          {%else%}
+            <img src="{% static 'products/icono_moto.svg' %}" class="card-img-top img-card">
+          {%endif%}
+
+        </div>
+        <div class="col-md-8">
+            <div class="card-body">
+                <h3 class="card-title">Nombre:</h3>
+                <p class="fst-normal">{{product.name}}</p>
+
+                <h5 class="fw-bold">Referencia:</h5>
+                <p class="fst-normal">{{product.reference}}</p>
+
+                <h5 class="fw-bold">Marca: </h5>
+                <p class="fst-normal">{{product.brand}}</p>
+
+                <h5 class="fw-bold">Precio:</h5>
+                <p class="fst-normal">{{product.price}}</p>
+
+
+                <h5 class="fw-bold">Descripcion:</h5>
+                <p class="fst-normal">{{product.description}}</p>
+
+
+                <h5 class="fw-bold">Unidades disponibles:</h5>
+                <p class="fst-normal">{{product.stock}}</p>
+
+                {% if rating == 0 %}
+                <p class="fst-normal">No hay calificaciones aun</p>
+                {%else%}
+                <p class="fst-normal">{{rating}} / 5</p>
+                {%endif%}
+            </div>
+        </div>
+        
+    </div>
+
+</div>
+<h5 class="fw-bold">Cantidad: </h5>
+<form method="POST" action="{% url 'cart' %}">
+    {% csrf_token %}
+    <input type="hidden" name="reference" value="{{ product.reference }}">
+
+    <input type="number" name="quantity" value="1" min="1">
+    <button type="submit" class="btn btn-success">Comprar</button>
+</form>
+
+
+<form method="POST">
+    {% csrf_token %}
+    {% if user.is_superuser == True%}
+    <input type="submit" class="btn btn-danger" value="Eliminar Producto" name="delete" />
+    <a class="btn btn-success" href="update/{{product.id}}">Actualizar Datos</a>  
+    {%endif%}
+</form>
+
+<form method="POST">
+{% csrf_token %}
+{% if user.is_authenticated == True%}
+<div class="d-flex flex-column bd-highlight mb-3"> Dale una calificacion al producto
+<select name="{{ form.rating.name }}"  class="form-select p-2 bd-highlight">
+    {% for value, label in form.rating.field.choices %}
+        <option value="{{ value }}">{{ label }}</option>
+    {% endfor %}
+</select>
+</div>
+<input type="submit" class="btn btn-primary" value="Rate the product" name="rate" />
+</form>
+{%endif%}
+{% endblock %}
